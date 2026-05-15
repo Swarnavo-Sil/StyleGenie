@@ -943,9 +943,9 @@ def show_app():
             
             # Logic
             body_type, reason = utils.determine_body_type(gender_input, chest_cm, waist_cm, hips_cm)
-            outfit = utils.get_recommendation(data, gender_mapped, body_type, season, occasion)
+            outfits = utils.get_recommendation(data, gender_mapped, body_type, season, occasion)
             
-            if outfit:
+            if outfits:
                 # 1. BODY TYPE DISPLAY (Prominent)
                 st.markdown(f"""
                     <div class="body-type-container">
@@ -955,54 +955,67 @@ def show_app():
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # 2. RECOMMENDATION CARD
-                st.markdown('<div class="rec-container">', unsafe_allow_html=True)
+                # 2. MULTIPLE OUTFIT TABS
+                tab_names = [f"✨ {o['Outfit Name']}" for o in outfits]
+                tabs = st.tabs(tab_names)
                 
-                # Layout: Top/Bottom split or 3 cols. Let's do 3 columns logic again but cleaner.
-                c1, spacer, c2 = st.columns([1, 0.1, 1])
-                
-                with c1:
-                    st.markdown('<div class="label-small">Upper Body Focus</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="value-large">{outfit["upper"]}</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="rec-subtext">Suggested Tone: {outfit["upper_color"]}</div>', unsafe_allow_html=True)
-                    
-                    st.markdown('<div style="margin-top: 40px;"></div>', unsafe_allow_html=True)
-                    
-                    st.markdown('<div class="label-small">Lower Body Focus</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="value-large">{outfit["lower"]}</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="rec-subtext">Suggested Tone: {outfit["lower_color"]}</div>', unsafe_allow_html=True)
+                for i, tab in enumerate(tabs):
+                    with tab:
+                        o = outfits[i]
+                        
+                        # Score and Style Pill
+                        st.markdown(f"""
+                            <div style='display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 20px;'>
+                                <div>
+                                    <span style='background: rgba(212,175,55,0.2); border: 1px solid #D4AF37; color: #D4AF37; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; letter-spacing: 1px; margin-right: 15px; font-family: Montserrat;'>{o["Style Type"]}</span>
+                                    <span style='background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #E0E0E0; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; letter-spacing: 1px; font-family: Montserrat;'>Score: {o["Fashion Score"]}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                        st.markdown(f"<div style='color: #D4AF37; font-family: Lato; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px; font-style: italic; border-left: 3px solid #D4AF37; padding-left: 15px;'>\"{o['Why It Matches']}\"</div>", unsafe_allow_html=True)
 
-                with spacer:
-                    # Vertical Line
-                    st.markdown('<div class="divider-vertical"></div>', unsafe_allow_html=True)
-                
-                with c2:
-                    st.markdown('<div class="label-small">Fabric Selection</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="value-large">{outfit["fabric"]}</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="rec-subtext">Optimized for {season} weather</div>', unsafe_allow_html=True)
-                    
-                    st.markdown('<div style="margin-top: 40px;"></div>', unsafe_allow_html=True)
-                    
-                    st.markdown('<div class="label-small">Curated Accessories</div>', unsafe_allow_html=True)
-                    # Accessories - Multiple Pills Logic
-                    raw_acc = outfit["accessory"]
-                    # Split if comma exists, else list single
-                    acc_list = [x.strip() for x in raw_acc.split(',')] if ',' in raw_acc else [raw_acc]
-                    
-                    # Build HTML for pills
-                    pills_html = '<div class="acc-pill-container">'
-                    for acc in acc_list:
-                        pills_html += f'<span class="acc-pill">{acc}</span>'
-                    pills_html += '</div>'
-                    
-                    st.markdown(pills_html, unsafe_allow_html=True)
-                    
-                    # Footwear Section (New)
-                    st.markdown('<div style="margin-top: 25px;"></div>', unsafe_allow_html=True)
-                    st.markdown('<div class="label-small">Footwear</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="value-large" style="font-size: 1.5rem;">{outfit["shoe"]}</div>', unsafe_allow_html=True)
-                    
-                st.markdown('</div>', unsafe_allow_html=True)
+                        # RECOMMENDATION CARD
+                        st.markdown('<div class="rec-container" style="margin-top: 0;">', unsafe_allow_html=True)
+                        
+                        c1, spacer, c2 = st.columns([1, 0.1, 1])
+                        
+                        with c1:
+                            st.markdown('<div class="label-small">Upper Body</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="value-large" style="font-size: 1.8rem;">{o["Upper Wear"]}</div>', unsafe_allow_html=True)
+                            
+                            st.markdown('<div style="margin-top: 30px;"></div>', unsafe_allow_html=True)
+                            
+                            st.markdown('<div class="label-small">Lower Body</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="value-large" style="font-size: 1.8rem;">{o["Lower Wear"]}</div>', unsafe_allow_html=True)
+
+                        with spacer:
+                            st.markdown('<div class="divider-vertical"></div>', unsafe_allow_html=True)
+                        
+                        with c2:
+                            st.markdown('<div class="label-small">Footwear</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="value-large" style="font-size: 1.6rem;">{o["Footwear"]}</div>', unsafe_allow_html=True)
+                            
+                            st.markdown('<div style="margin-top: 30px;"></div>', unsafe_allow_html=True)
+                            
+                            st.markdown('<div class="label-small">Curated Accessories</div>', unsafe_allow_html=True)
+                            acc_list = [x.strip() for x in o["Accessories"].split(',')]
+                            pills_html = '<div class="acc-pill-container">'
+                            for acc in acc_list:
+                                pills_html += f'<span class="acc-pill">{acc}</span>'
+                            pills_html += '</div>'
+                            st.markdown(pills_html, unsafe_allow_html=True)
+                            
+                        st.markdown('</div>', unsafe_allow_html=True)
+                        
+                        # Extra Details below card
+                        st.markdown(f"""
+                            <div style='display: flex; gap: 30px; margin-top: 20px; justify-content: center; color: #999999; font-size: 0.95rem; font-family: Lato;'>
+                                <div><span style='color:#D4AF37;'>🎨</span> <b>Color Palette:</b> {o["Best Color Combination"]}</div>
+                                <div><span style='color:#D4AF37;'>🌤️</span> <b>Season:</b> {o["Season Suitability"]}</div>
+                                <div><span style='color:#D4AF37;'>🍷</span> <b>Occasion:</b> {o["Occasion Suitability"]}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
                 
             else:
                 st.error("We couldn't match a specific outfit from the collection. Please try a different combination!")
