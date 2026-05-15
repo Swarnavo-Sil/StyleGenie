@@ -2,12 +2,12 @@ import pandas as pd
 import streamlit as st
 import random
 
-# Dataset Paths (Absolute paths as strictly required)
+# Dataset Paths (GitHub Raw URLs)
 DATA_PATHS = {
-    "upper": r"E:\Study_Material\3rd Year(6th Sem)\Project\Upper_Cloth.csv",
-    "lower": r"E:\Study_Material\3rd Year(6th Sem)\Project\Lower_Wear.csv", 
-    "fabric": r"E:\Study_Material\3rd Year(6th Sem)\Project\Fabrics.csv",
-    "accessories": r"E:\Study_Material\3rd Year(6th Sem)\Project\Accessories.csv"
+    "upper": "https://raw.githubusercontent.com/Swarnavo-Sil/StyleGenie/main/Upper_Cloth.csv",
+    "lower": "https://raw.githubusercontent.com/Swarnavo-Sil/StyleGenie/main/Lower_Wear.csv", 
+    "fabric": "https://raw.githubusercontent.com/Swarnavo-Sil/StyleGenie/main/Fabrics.csv",
+    "accessories": "https://raw.githubusercontent.com/Swarnavo-Sil/StyleGenie/main/Accessories.csv"
 }
 
 @st.cache_data
@@ -16,16 +16,16 @@ def load_data():
     Loads all datasets and performs basic cleaning.
     """
     datasets = {}
-    for key, path in DATA_PATHS.items():
+    for key, url in DATA_PATHS.items():
         try:
-            df = pd.read_csv(path)
+            df = pd.read_csv(url, encoding="utf-8")
             # Standardize column names to striped lowercase
             df.columns = df.columns.str.strip().str.lower()
             # Clean string values
             df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
             datasets[key] = df
         except Exception as e:
-            st.error(f"Error loading {key} dataset from {path}: {e}")
+            st.error(f"Dataset loading failed: {e}")
             datasets[key] = pd.DataFrame()
     return datasets
 
